@@ -1,52 +1,68 @@
-import React, {useState} from 'react'
-
-const allItems = [
-    { id: 'beaming', value: '😁', isSmile: true},
-    { id: 'grinning', value: '😀', isSmile: true},
-    { id: 'squinting', value: '😄', isSmile: true},
-    { id: 'winking', value: '😉', isSmile: true},
-    { id: 'sad', value: '😥', isSmile: false},
-]
+import React, { useState } from "react";
+import Header from "./components/Header";
+import "./App.css";
+import TaskList from "./components/TaskList";
+import AddTaskForm from "./components/AddTaskForm";
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const [items, setItems] = useState(allItems)
+  const [tasks, setTasks] = useState([
+    { id: "task_1", title: "Learn JS Fundamental", status: 0 },
+    { id: "task_2", title: "Code a ToDoList", status: 0 },
+  ]);
+  const [showIncomplete, setShowIncomplete] = useState(false);
+  const [newTask, setNewTask] = useState("");
 
-    const handleLogin = () => {
-        setIsLoggedIn(true)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (newTask) {
+      const task = {
+        id: Date.now(),
+        title: newTask,
+        status: 0,
+      };
+      setTasks([...tasks, task]);
+      setNewTask("");
     }
-    const handleLogout = () => {
-        setIsLoggedIn(false)
-    }
-    const removeItem = (itemId) => {
-        setItems(items.filter(item => item.id !== itemId))
-    }
+  };
+
+  const handleInputChange = (e) => {
+    setNewTask(e.target.value);
+  };
+
+  const setTaskStatus = (taskId, status) => {
+    setTasks(
+      tasks.map((task) => {
+        if (task.id === taskId) {
+          return { ...task, status: status ? 1 : 0 };
+        }
+        return task;
+      })
+    );
+  };
+
+  const removeTask = (taskId) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
+  };
 
   return (
-    <div>
-        <h1>Smileys</h1>
-        <div className='loginControl'>
-            {isLoggedIn ? (
-            <button onClick={handleLogout}>Logout</button>
-            ) : (
-            <button onClick={handleLogin}>Login</button>
-            )}
-        </div>
-        <div>
-            {isLoggedIn && (
-                <ul>
-                    {items.map(item => (
-                        <li key={item.id} onClick={() => removeItem(item.id)}>
-                            <label htmlFor={`${item.id}-input`}>{item.value} {item.id}</label>
-                            <input id={`${item.id}-input`} type="text"  defaultValue={item.id}/>
-                            <button>Remove</button>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+    <div className="container">
+      <Header title="ToDoList" subTitle="Get one item done at a time." />
+
+      <TaskList
+        tasks={tasks}
+        showIncomplete={showIncomplete}
+        setTaskStatus={setTaskStatus}
+        removeTask={removeTask}
+        setShowIncomplete={setShowIncomplete}
+      />
+
+      <AddTaskForm
+        handleSubmit={handleSubmit}
+        newTask={newTask}
+        handleInputChange={handleInputChange}
+      />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
